@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Birthday 🎂</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg,
+                    #667eea 0%,
+                    #764ba2 50%,
+                    #f093fb 100%);
+            min-height: 100vh;
+            perspective: 1000px;
+        }
+
+        .gift-container {
+            position: relative;
+            width: 250px;
+            height: 300px;
+            margin: 0 auto;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gift-container:hover:not(.open) {
+            transform: translateY(-10px);
+        }
+
+        .gift-box-3d {
+            position: absolute;
+            width: 100%;
+            height: 200px;
+            bottom: 0;
+            transform-style: preserve-3d;
+            transition: opacity 0.5s ease;
+        }
+
+        .gift-container.open .gift-box-3d {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .box-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.95;
+            border-radius: 12px;
+        }
+
+        .front {
+            transform: translateZ(100px);
+        }
+
+        .back {
+            transform: translateZ(-100px) rotateY(180deg);
+        }
+
+        .right {
+            width: 200px;
+            transform: rotateY(90deg) translateZ(100px);
+        }
+
+        .left {
+            width: 200px;
+            transform: rotateY(-90deg) translateZ(100px);
+        }
+
+        .bottom {
+            height: 200px;
+            transform: rotateX(-90deg) translateZ(0px);
+        }
+
+        /* Lid */
+        .gift-lid {
+            position: absolute;
+            width: 100%;
+            height: 80px;
+            top: -40px;
+            transform-style: preserve-3d;
+            transition: all 0.8s ease;
+            transform-origin: bottom center;
+        }
+
+        .gift-container.open .gift-lid {
+            transform: rotateX(-150deg) translateY(-100px) translateZ(50px);
+        }
+
+        .lid-top {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform: translateZ(105px);
+            border-radius: 12px;
+        }
+
+        .lid-front {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            bottom: 0;
+            transform: translateZ(105px);
+            border-radius: 0 0 12px 12px;
+        }
+
+        .lid-back {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            bottom: 0;
+            transform: translateZ(-105px) rotateY(180deg);
+            border-radius: 0 0 12px 12px;
+        }
+
+        .lid-right {
+            position: absolute;
+            width: 210px;
+            height: 40px;
+            bottom: 0;
+            transform: rotateY(90deg) translateZ(100px);
+            border-radius: 0 0 12px 12px;
+        }
+
+        .lid-left {
+            position: absolute;
+            width: 210px;
+            height: 40px;
+            bottom: 0;
+            transform: rotateY(-90deg) translateZ(100px);
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* Ribbon */
+        .ribbon-v,
+        .ribbon-h {
+            position: absolute;
+            z-index: 10;
+        }
+
+        .ribbon-v {
+            width: 30px;
+            height: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateZ(106px);
+        }
+
+        .ribbon-h {
+            width: 100%;
+            height: 30px;
+            top: 50%;
+            transform: translateY(-50%) translateZ(106px);
+        }
+
+        .bow {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%) translateZ(106px);
+            font-size: 60px;
+            z-index: 11;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Message Card */
+        .message-card {
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+            opacity: 0;
+            transform: translateY(50px) scale(0.5);
+            transition: all 0.6s ease 0.5s;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .gift-container.open .message-card {
+            opacity: 1;
+            transform: translateY(-30px) scale(1);
+            pointer-events: auto;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin: 12px auto;
+            display: block;
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            font-size: 40px;
+            animation: sparkle 1.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1) rotate(180deg);
+            }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Special box textarea */
+        .special-textarea {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #ec4899;
+            border-radius: 12px;
+            padding: 12px;
+            width: 100%;
+            min-height: 80px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .special-textarea:focus {
+            outline: none;
+            border-color: #db2777;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+        }
+    </style>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            emailjs.init("_G9orQ0mdOOVz15Mx");
+        })();
+    </script>
+</head>
+
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12 floating">
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-4">
+                🎂 Happy Birthday งับคนเก่ง 🎂
+            </h1>
+            <p class="text-xl md:text-2xl text-pink-100 mt-10">
+                อันนี้เค้าตั้งใจทำให้ ตั้งแต่เค้ารู้วันเกิดเธอ เค้าก็คิดไว้แล้วว่าต้องทำให้เธอมันเป็นความตั้งใจของเค้า ไม่รู้ว่าเธอจะชอบรึป่าวแต่เค้าก็นั่งทำไปยิ้มไป
+            </p>
+            <p class="text-center text-xl md:text-2xl text-pink-100 mt-10">
+                คลิกที่กล่องของขวัญข้างล่า่งได้เลย ✨
+            </p>
+        </div>
+
+        <!-- Gift Boxes Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 mb-8 floating">
+            <!-- Gift Box 1 -->
+            <div class="relative">
+                <div class="gift-container" onclick="openGift(0)">
+                    <div class="sparkle" style="top: -20px; right: 20px">✨</div>
+                    <div class="sparkle" style="bottom: 20px; left: 20px; animation-delay: 0.5s">⭐</div>
+                    <div class="sparkle" style="top: 50%; right: -20px; animation-delay: 1s">💫</div>
+
+                    <div class="gift-box-3d">
+                        <div class="box-face front bg-gradient-to-br from-purple-400 to-pink-400"></div>
+                        <div class="box-face back bg-gradient-to-br from-purple-400 to-pink-400"></div>
+                        <div class="box-face right bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                        <div class="box-face left bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                        <div class="box-face bottom bg-gradient-to-br from-purple-600 to-pink-600"></div>
+
+                        <div class="ribbon-v bg-gradient-to-r from-yellow-300 to-yellow-400"></div>
+                        <div class="ribbon-h bg-gradient-to-r from-yellow-300 to-yellow-400"></div>
+
+                        <div class="gift-lid">
+                            <div class="lid-top bg-gradient-to-br from-purple-300 to-pink-300"></div>
+                            <div class="lid-front bg-gradient-to-br from-purple-400 to-pink-400"></div>
+                            <div class="lid-back bg-gradient-to-br from-purple-400 to-pink-400"></div>
+                            <div class="lid-right bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                            <div class="lid-left bg-gradient-to-br from-purple-500 to-pink-500"></div>
+                            <div class="bow">🎀</div>
+                        </div>
+                    </div>
+
+                    <div class="message-card">
+                        <div class="bg-white rounded-2xl p-6 shadow-2xl max-h-96 overflow-y-auto">
+                            <p class="text-purple-800 text-lg text-center font-medium leading-relaxed">
+                                ขอให้มีความสุขมากๆ ในทุกวัน<br />
+                                สุขสันต์วันเกิดนะครับ 22 ขวบละ แก่กว่าเค้าปีนึงละ ก็ขอให้เธอประสบความสำเร็จนะทุกๆอย่างนะ ขอให้ทุกๆวะนของเธอมีแต่ความสุขให้ไม่เหนื่อยมาก
+                                เค้าเป็นกำลังใจให้ตรงนี้เสมอครับ 
+                            </p>
+                            <div id="imageContainer1" class="">
+                                <img id="image1" class="image-preview" src="images/pic1.jpg" alt="Gift Image">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gift Box 2 -->
+            <div class="relative">
+                <div class="gift-container" onclick="openGift(1)">
+                    <div class="sparkle" style="top: -20px; left: 20px">✨</div>
+                    <div class="sparkle" style="bottom: 20px; right: 20px; animation-delay: 0.7s">⭐</div>
+                    <div class="sparkle" style="top: 50%; left: -20px; animation-delay: 1.2s">💫</div>
+
+                    <div class="gift-box-3d">
+                        <div class="box-face front bg-gradient-to-br from-blue-400 to-cyan-400"></div>
+                        <div class="box-face back bg-gradient-to-br from-blue-400 to-cyan-400"></div>
+                        <div class="box-face right bg-gradient-to-br from-blue-500 to-cyan-500"></div>
+                        <div class="box-face left bg-gradient-to-br from-blue-500 to-cyan-500"></div>
+                        <div class="box-face bottom bg-gradient-to-br from-blue-600 to-cyan-600"></div>
+
+                        <div class="ribbon-v bg-gradient-to-r from-yellow-300 to-amber-400"></div>
+                        <div class="ribbon-h bg-gradient-to-r from-yellow-300 to-amber-400"></div>
+
+                        <div class="gift-lid">
+                            <div class="lid-top bg-gradient-to-br from-blue-300 to-cyan-300"></div>
+                            <div class="lid-front bg-gradient-to-br from-blue-400 to-cyan-400"></div>
+                            <div class="lid-back bg-gradient-to-br from-blue-400 to-cyan-400"></div>
+                            <div class="lid-right bg-gradient-to-br from-blue-500 to-cyan-500"></div>
+                            <div class="lid-left bg-gradient-to-br from-blue-500 to-cyan-500"></div>
+                            <div class="bow">🎀</div>
+                        </div>
+                    </div>
+
+                    <div class="message-card">
+                        <div class="bg-white rounded-2xl p-6 shadow-2xl max-h-96 overflow-y-auto">
+                            <p class="text-pink-800 text-lg text-center font-medium leading-relaxed">
+                                กินข้าวเยอะๆด้วยนะ กินแต่ขนมไม่ดีนะคับ<br />
+                                หรือว่าปกติกินเยอะอยู่แล้ว แค่ตอนมากินกับเค้าเลยกินน้อยรึป่าว แต่ยังไม่ได้ไปกินหมูทะกับเธอเลย ก็ยังอยากไปกินด้วยอยู่
+                            </p>
+                            <div id="imageContainer2" class="">
+                                <img id="image2" class="image-preview" src="images/pic2.jpg" alt="Gift Image">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gift Box 3 -->
+            <div class="relative">
+                <div class="gift-container" onclick="openGift(2)">
+                    <div class="sparkle" style="top: -20px; right: 20px">✨</div>
+                    <div class="sparkle" style="bottom: 20px; left: 20px; animation-delay: 0.3s">⭐</div>
+                    <div class="sparkle" style="top: 50%; right: -20px; animation-delay: 0.9s">💫</div>
+
+                    <div class="gift-box-3d">
+                        <div class="box-face front bg-gradient-to-br from-green-400 to-emerald-400"></div>
+                        <div class="box-face back bg-gradient-to-br from-green-400 to-emerald-400"></div>
+                        <div class="box-face right bg-gradient-to-br from-green-500 to-emerald-500"></div>
+                        <div class="box-face left bg-gradient-to-br from-green-500 to-emerald-500"></div>
+                        <div class="box-face bottom bg-gradient-to-br from-green-600 to-emerald-600"></div>
+
+                        <div class="ribbon-v bg-gradient-to-r from-yellow-400 to-orange-400"></div>
+                        <div class="ribbon-h bg-gradient-to-r from-yellow-400 to-orange-400"></div>
+
+                        <div class="gift-lid">
+                            <div class="lid-top bg-gradient-to-br from-green-300 to-emerald-300"></div>
+                            <div class="lid-front bg-gradient-to-br from-green-400 to-emerald-400"></div>
+                            <div class="lid-back bg-gradient-to-br from-green-400 to-emerald-400"></div>
+                            <div class="lid-right bg-gradient-to-br from-green-500 to-emerald-500"></div>
+                            <div class="lid-left bg-gradient-to-br from-green-500 to-emerald-500"></div>
+                            <div class="bow">🎀</div>
+                        </div>
+                    </div>
+
+                    <div class="message-card">
+                        <div class="bg-white rounded-2xl p-6 shadow-2xl max-h-96 overflow-y-auto">
+                            <p class="text-purple-800 text-lg text-center font-medium leading-relaxed">
+                                ขอบคุณมากๆที่เป็นเธอที่เข้ามา ถึงจะแปบเดียว<br />
+                                แต่ก็เป็นช่วงเวลาที่เค้าไม่เคยได้จากใครเหมือนกันนะ ที่ผ่านๆมาเค้าเหมือนกับติดคุกอะ จนเค้าได้มาเจอเธอ ถึงจะแปบเดียวแต่เธอก็ทำให้เค้ารู้สึกว่าเธอใจดีมาก
+                                ทำให้เค้ายิ้มได้ตลอด อยากทำอะไรก็ได้ทำ จะไปไหนก็ได้ไป ที่ผ่านมาเค้าไม่เคยได้จากใครเลย ก็พึ่งมาได้กับเธอนี่แหละคนแรก ใจนึกเค้าก็อยากให้เธอกลับมาแต่
+                                ก็นะ ความสุขของใครของมันทุกคนมีสิทธิเลือกไปบังคับใจใครไม่ไดั ก็ไม่เข้าใจหรอกว่าเธอบอกว่าอะไรที่ไม่เคยได้ ก็ได้จากเค้า แล้วเธอจะปล่อยเค้าทำไมเธอก็คงมีเหตุผลของเธอแหละ
+                                ถ้าเป็นไปได้ก็อยากให้กลับมานะครับ สุดท้ายนี้ก็ขอให้เธอเติบโตเป็นคนที่สวย น่ารัก และใจดีแบบนี้ไปตลอดนะครับ 
+                            </p>
+                            <div id="imageContainer3" class="">
+                                <img id="image3" class="image-preview" src="images/pic3.jpg" alt="Gift Image" onerror="this.style.display='none'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Gift Box 4 -->
+            <div class="relative">
+                <div class="gift-container" onclick="openGift(3)">
+                    <div class="sparkle" style="top: -20px; left: 20px">⭐</div>
+                    <div class="sparkle" style="bottom: 20px; right: 20px; animation-delay: 0.6s">✨</div>
+                    <div class="sparkle" style="top: 50%; left: -20px; animation-delay: 1.1s">💫</div>
+
+                    <div class="gift-box-3d">
+                        <div class="box-face front bg-gradient-to-br from-yellow-300 to-pink-400"></div>
+                        <div class="box-face back bg-gradient-to-br from-yellow-300 to-pink-400"></div>
+                        <div class="box-face right bg-gradient-to-br from-yellow-400 to-pink-500"></div>
+                        <div class="box-face left bg-gradient-to-br from-yellow-400 to-pink-500"></div>
+                        <div class="box-face bottom bg-gradient-to-br from-yellow-500 to-pink-600"></div>
+
+                        <div class="ribbon-v bg-gradient-to-r from-amber-300 to-yellow-400"></div>
+                        <div class="ribbon-h bg-gradient-to-r from-amber-300 to-yellow-400"></div>
+
+                        <div class="gift-lid">
+                            <div class="lid-top bg-gradient-to-br from-yellow-200 to-pink-300"></div>
+                            <div class="lid-front bg-gradient-to-br from-yellow-300 to-pink-400"></div>
+                            <div class="lid-back bg-gradient-to-br from-yellow-300 to-pink-400"></div>
+                            <div class="lid-right bg-gradient-to-br from-yellow-400 to-pink-500"></div>
+                            <div class="lid-left bg-gradient-to-br from-yellow-400 to-pink-500"></div>
+                            <div class="bow">⭐</div>
+                        </div>
+                    </div>
+
+                    <div class="message-card">
+                        <div class="bg-white rounded-2xl p-6 shadow-2xl max-h-96 overflow-y-auto">
+                            <p class="text-pink-800 text-center font-bold mb-3 text-lg">
+                                กล่องนี้สำหรับเค้าวันที่ 19 มกราคม ค่อยมาเขียนก็ได้อันนี้แล้วแต่เธอครับ 💌
+                            </p>
+                            <p class="text-sm text-gray-600 text-center mb-3">
+                                เขียนอะไรก็ได้งับ
+                            </p>
+
+                            <textarea id="specialMessage" placeholder="พิมพ์ข้อความที่นี่..." class="special-textarea"
+                                onclick="event.stopPropagation();"></textarea>
+
+                            <p class="text-xs text-gray-500 mb-2 text-center mt-2">
+                                📝 กดบันทึกแล้วข้อความจะส่งมาหาเค้านะงับบ
+                            </p>
+                            <button onclick="saveMessage(); event.stopPropagation();"
+                                class="mt-3 w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-3 rounded-lg transition font-medium shadow-lg">
+                                💾 บันทึกข้อความ
+                            </button>
+                            <div id="savedMessageDisplay"
+                                class="mt-3 p-4 bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg hidden border-2 border-pink-200">
+                                <p class="text-xs text-gray-500 mb-2 text-center">
+                                    📝 ส่งแล้วข้อความจะอยู่ตรงนี้
+                                </p>
+                                <p id="savedMessageText" class="text-pink-800 text-center font-medium break-words whitespace-pre-wrap"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-white text-opacity-80 mt-12 floating">
+            <p class="text-lg">🎈 With all my love and longing. 🎈</p>
+        </div>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="audio1" src="music/ยินดีข้างเธอ.mp3"></audio>
+    <audio id="audio2" src="music/เหนื่อยจังอยากฟังเสียง.mp3"></audio>
+    <audio id="audio3" src="music/มันคือความหวั่นไหวของหัวใจดวงน้อยๆ(Official Audio).mp3"></audio>
+    <audio id="audio4" src=""></audio>
+
+    <script>
+        let openedGifts = [false, false, false, false];
+        let audioElements = [];
+        let savedMessage = "";
+
+        // Initialize
+        window.addEventListener("load", function () {
+            audioElements = [
+                document.getElementById("audio1"),
+                document.getElementById("audio2"),
+                document.getElementById("audio3"),
+                document.getElementById("audio4"),
+            ];
+
+            // Load saved message
+            const saved = JSON.parse(localStorage.getItem("birthdayData") || "{}");
+            if (saved.message) {
+                savedMessage = saved.message;
+                document.getElementById("specialMessage").value = saved.message;
+                document.getElementById("savedMessageText").textContent = saved.message;
+                document.getElementById("savedMessageDisplay").classList.remove("hidden");
+            }
+        });
+
+        function openGift(giftIndex) {
+            const containers = document.querySelectorAll(".gift-container");
+            const currentContainer = containers[giftIndex];
+
+            if (!openedGifts[giftIndex]) {
+                currentContainer.classList.add("open");
+                openedGifts[giftIndex] = true;
+                playMusic(giftIndex);
+            } else {
+                currentContainer.classList.remove("open");
+                openedGifts[giftIndex] = false;
+                stopMusic(giftIndex);
+            }
+        }
+
+        function playMusic(giftIndex) {
+            audioElements.forEach((audio, index) => {
+                if (index !== giftIndex) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            });
+
+            const audio = audioElements[giftIndex];
+            audio.currentTime = 0;
+            audio.play().catch((e) => {
+                console.log("Cannot play audio:", e);
+            });
+        }
+
+        function stopMusic(giftIndex) {
+            const audio = audioElements[giftIndex];
+            audio.pause();
+            audio.currentTime = 0;
+        }
+
+        function saveMessage() {
+            const messageInput = document.getElementById("specialMessage");
+            const message = messageInput.value.trim();
+
+            // จำกัดความยาว ป้องกัน EmailJS 413
+            const MAX_MESSAGE_LENGTH = 500;
+            const safeMessage =
+                message.length > MAX_MESSAGE_LENGTH
+                    ? message.substring(0, MAX_MESSAGE_LENGTH) + "..."
+                    : message;
+
+            if (safeMessage) {
+                // บันทึก localStorage
+                const data = {
+                    message: message
+                };
+                localStorage.setItem("birthdayData", JSON.stringify(data));
+
+                // ส่งอีเมล
+                const templateParams = {
+                    name: "เย่ เธอตอบกลับมาด้วย",
+                    message: safeMessage,
+                    date: new Date().toLocaleString("th-TH"),
+                };
+
+                console.log(
+                    "EMAIL SIZE",
+                    new Blob([JSON.stringify(templateParams)]).size / 1024,
+                    "KB"
+                );
+
+                emailjs.send("service_lwnq3am", "template_vq8n059", templateParams).then(
+                    function () {
+                        alert("✅ ข้อความถูกส่งไปแล้วรอเค้าอ่านปับนะะะ");
+                    },
+                    function (error) {
+                        console.log("FAILED...", error);
+                        alert("⚠️ บันทึกข้อความแล้ว แต่ส่งอีเมลไม่สำเร็จ");
+                    }
+                );
+
+                // แสดงผลในหน้าเว็บ
+                document.getElementById("savedMessageText").textContent = message;
+                document.getElementById("savedMessageDisplay").classList.remove("hidden");
+            } else {
+                alert("⚠️ กรุณาเขียนข้อความก่อนบันทึกงับอ้วนน");
+            }
+        }
+    </script>
+</body>
+
+</html>
